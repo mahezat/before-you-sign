@@ -1,0 +1,17 @@
+{
+  "id": "bys_claim_check",
+  "type": "esql",
+  "description": "Fact-check rental listing claims for a building by BBL. Returns a verdict computed from city records for each claim type: pest_free, great_heat, lead_safe, family_friendly, dry_no_mold, fire_safe, well_maintained, responsive_management, plus the evidence counts behind each verdict. Copy verdicts exactly; never change them.",
+  "tags": [
+    "before-you-sign"
+  ],
+  "configuration": {
+    "query": "FROM hpd_violations, evictions METADATA _index\n| WHERE bbl == ?bbl\n| EVAL d = TO_UPPER(novdescription), is_v = CASE(_index == \"hpd_violations\", 1, 0), is_e = CASE(_index == \"evictions\", 1, 0)\n| EVAL p = CASE(d LIKE \"*MICE*\" OR d LIKE \"*RODENT*\" OR d LIKE \"*RATS*\" OR d LIKE \"*ROACH*\" OR d LIKE \"*VERMIN*\" OR d LIKE \"*BEDBUG*\" OR d LIKE \"*PEST*\", 1, 0), h = CASE(d LIKE \"*HEAT*\" OR d LIKE \"*HOT WATER*\", 1, 0), l = CASE(d LIKE \"*LEAD*\", 1, 0), w = CASE(d LIKE \"*WINDOW GUARD*\", 1, 0), m = CASE(d LIKE \"*MOLD*\" OR d LIKE \"*LEAK*\", 1, 0), f = CASE(d LIKE \"*SMOKE DETECT*\" OR d LIKE \"*CARBON MONOXIDE*\" OR d LIKE \"*FIRE*\", 1, 0)\n| STATS pest_violations = SUM(p), heat_violations = SUM(h), lead_paint_violations = SUM(l), window_guard_violations = SUM(w), mold_or_leak_violations = SUM(m), fire_safety_violations = SUM(f), open_hazardous_violations = SUM(is_v), evictions = SUM(is_e), oldest_open_violation = MIN(inspectiondate), apartments = MAX(units)\n| EVAL yrs = DATE_DIFF(\"day\", TO_DATETIME(\"2017-01-01T00:00:00.000Z\"), NOW()) / 365.25, years_oldest_open = ROUND(DATE_DIFF(\"day\", oldest_open_violation, NOW()) / 365.25, 1)\n| EVAL vpa = ROUND(TO_DOUBLE(open_hazardous_violations) / apartments, 2), epy = ROUND(TO_DOUBLE(evictions) * 100.0 / apartments / yrs, 2)\n| EVAL pest_free = CASE(pest_violations > 0, \"FALSE\", \"TRUE\"), great_heat = CASE(heat_violations > 0, \"FALSE\", \"TRUE\"), lead_safe = CASE(lead_paint_violations > 0, \"FALSE\", \"TRUE\"), family_friendly = CASE(lead_paint_violations > 0 OR window_guard_violations > 0, \"FALSE\", \"TRUE\"), dry_no_mold = CASE(mold_or_leak_violations > 0, \"FALSE\", \"TRUE\"), fire_safe = CASE(fire_safety_violations > 0, \"FALSE\", \"TRUE\"), well_maintained = CASE(vpa >= 0.2 OR years_oldest_open > 2, \"FALSE\", open_hazardous_violations > 0, \"MOSTLY TRUE\", \"TRUE\"), responsive_management = CASE(epy >= 1.0 OR years_oldest_open > 2, \"FALSE\", evictions > 0, \"MOSTLY TRUE\", \"TRUE\")\n| KEEP pest_free, great_heat, lead_safe, family_friendly, dry_no_mold, fire_safe, well_maintained, responsive_management, pest_violations, heat_violations, lead_paint_violations, window_guard_violations, mold_or_leak_violations, fire_safety_violations, open_hazardous_violations, apartments, vpa, evictions, epy, years_oldest_open",
+    "params": {
+      "bbl": {
+        "type": "string",
+        "description": "10-digit BBL"
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+FROM hpd_violations, evictions METADATA _index
+| WHERE bbl == ?bbl
+| EVAL is_v = CASE(_index == "hpd_violations", 1, 0), is_e = CASE(_index == "evictions", 1, 0), ri = CASE(rentimpairing == "Y", 1, 0), lat = ST_Y(location), lon = ST_X(location)
+| STATS open_hazardous_violations = SUM(is_v), evictions = SUM(is_e), rent_impairing_violations = SUM(ri), oldest_open_violation = MIN(inspectiondate), last_eviction = MAX(executed_date), apartments = MAX(units), lat = MAX(lat), lon = MAX(lon)
+| EVAL years_of_eviction_records = DATE_DIFF("day", TO_DATETIME("2017-01-01T00:00:00.000Z"), NOW()) / 365.25
+| EVAL violations_per_apartment = ROUND(TO_DOUBLE(open_hazardous_violations) / apartments, 2), evictions_per_100_apartments_per_year = ROUND(TO_DOUBLE(evictions) * 100.0 / apartments / years_of_eviction_records, 2), days_oldest_open = DATE_DIFF("day", oldest_open_violation, NOW())
+| EVAL grade = CASE(open_hazardous_violations IS NULL OR (open_hazardous_violations == 0 AND evictions == 0), "A", apartments IS NULL, "not graded: apartment count unknown", violations_per_apartment >= 1.0 OR evictions_per_100_apartments_per_year >= 3.0, "F", violations_per_apartment >= 0.5 OR evictions_per_100_apartments_per_year >= 2.0, "D", violations_per_apartment >= 0.2 OR evictions_per_100_apartments_per_year >= 1.0 OR days_oldest_open > 730, "C", "B")
+| EVAL point = CONCAT("POINT(", TO_STRING(lon), " ", TO_STRING(lat), ")"), grade_rank = CASE(grade == "A", 0, grade == "B", 1, grade == "C", 2, grade == "D", 3, grade == "F", 4, 9)
+| KEEP grade, grade_rank, point, apartments, open_hazardous_violations, violations_per_apartment, evictions, evictions_per_100_apartments_per_year, rent_impairing_violations, oldest_open_violation, days_oldest_open, last_eviction

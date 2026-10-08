@@ -1,0 +1,17 @@
+{
+  "id": "bys_find_building",
+  "type": "esql",
+  "description": "Find a Bronx building's BBL (the city's building ID) from a street address. Write the address the way NYC records it: house number, then EAST/WEST spelled out, numbered streets without 'th', and STREET/AVENUE spelled out, e.g. '530 EAST 169 STREET'. Returns the best matching buildings.",
+  "tags": [
+    "before-you-sign"
+  ],
+  "configuration": {
+    "query": "FROM hpd_violations, evictions METADATA _score\n| WHERE MATCH(address, ?address)\n| STATS records = COUNT(*), best_score = MAX(_score) BY bbl, address.keyword\n| SORT best_score DESC, records DESC\n| LIMIT 5",
+    "params": {
+      "address": {
+        "type": "string",
+        "description": "Street address, e.g. 530 EAST 169 STREET"
+      }
+    }
+  }
+}

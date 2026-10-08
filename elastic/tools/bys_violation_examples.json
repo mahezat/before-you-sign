@@ -1,0 +1,17 @@
+{
+  "id": "bys_violation_examples",
+  "type": "esql",
+  "description": "List the oldest open hazardous violations at a building, with apartment, date and the city's description, by BBL. Use to explain the worst problems in plain words.",
+  "tags": [
+    "before-you-sign"
+  ],
+  "configuration": {
+    "query": "FROM hpd_violations\n| WHERE bbl == ?bbl\n| SORT inspectiondate ASC\n| KEEP inspectiondate, apartment, rentimpairing, novdescription\n| LIMIT 12",
+    "params": {
+      "bbl": {
+        "type": "string",
+        "description": "10-digit BBL"
+      }
+    }
+  }
+}

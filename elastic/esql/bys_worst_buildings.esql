@@ -1,0 +1,8 @@
+FROM hpd_violations, evictions METADATA _index
+| EVAL is_v = CASE(_index == "hpd_violations", 1, 0), is_e = CASE(_index == "evictions", 1, 0)
+| STATS open_hazardous_violations = SUM(is_v), evictions = SUM(is_e), apartments = MAX(units), building = MAX(address.keyword) BY bbl
+| WHERE apartments >= 10
+| EVAL violations_per_apartment = ROUND(TO_DOUBLE(open_hazardous_violations) / apartments, 2)
+| SORT violations_per_apartment DESC
+| KEEP building, violations_per_apartment, open_hazardous_violations, apartments, evictions, bbl
+| LIMIT 10

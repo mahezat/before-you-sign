@@ -1,0 +1,440 @@
+<title>Before You Sign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&family=Cairo:wght@400;700;800&display=swap">
+<style>
+/* Layout: civic signage. Search on top, the grade card leads, then what's wrong, better buildings nearby, and the borough map. */
+:root{
+  --paper:#f2f4f7; --sheet:#ffffff; --ink:#18213a; --muted:#59627a; --rule:#d5dae4; --chip:#e8ecf3;
+  --a:#1d7a4c; --b:#5b8c22; --c:#b8860b; --d:#d0601b; --f:#c0302f; --ring:#18213a;
+  --display:"Barlow Condensed","Cairo","Arial Narrow",Arial,sans-serif;
+  --body:"Public Sans","Cairo",system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1422; --sheet:#171e31; --ink:#e9edf6; --muted:#a2abc1; --rule:#2c3550; --chip:#232c45;
+  --a:#3fb57a; --b:#8cc152; --c:#e2b23a; --d:#f08a4b; --f:#ef5a52; --ring:#e9edf6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1422; --sheet:#171e31; --ink:#e9edf6; --muted:#a2abc1; --rule:#2c3550; --chip:#232c45;
+  --a:#3fb57a; --b:#8cc152; --c:#e2b23a; --d:#f08a4b; --f:#ef5a52; --ring:#e9edf6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+:root[lang="ar"] body{font-family:"Cairo",var(--body)}
+:root[lang="ar"] .brand,:root[lang="ar"] .cardhead,:root[lang="ar"] h2,:root[lang="ar"] .search label,:root[lang="ar"] .example{letter-spacing:0;font-family:"Cairo",var(--display)}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:28px 48px;display:grid;gap:22px}
+header{display:grid;gap:6px}
+.headrow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:clamp(34px,6vw,52px);letter-spacing:.02em;line-height:1.05;text-transform:uppercase}
+.langs{display:flex;gap:4px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--sheet)}
+.langs button{all:unset;cursor:pointer;padding:5px 12px;border-radius:999px;font-weight:700;font-size:14px;color:var(--muted)}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.langs button:focus-visible{outline:2px solid var(--c)}
+.tag{color:var(--muted);font-size:17px;max-width:62ch}
+.search{position:relative;max-width:560px;margin-top:8px}
+.search label{display:block;font-family:var(--display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:14px;color:var(--muted);margin-bottom:4px}
+.search input{width:100%;font:inherit;font-size:18px;padding:12px 14px;border:2px solid var(--ink);border-radius:6px;background:var(--sheet);color:var(--ink)}
+.search input:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.sugg{position:absolute;inset-inline:0;top:100%;z-index:5;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:grid}
+.sugg button{all:unset;display:flex;gap:10px;align-items:center;padding:9px 12px;cursor:pointer}
+.sugg button:hover,.sugg button:focus-visible{background:var(--chip)}
+.top{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){.top{grid-template-columns:1fr}}
+.card{background:var(--sheet);border:10px solid var(--ink);padding:26px;display:grid;gap:18px}
+.cardhead{font-family:var(--display);font-weight:800;letter-spacing:.3em;font-size:15px;text-transform:uppercase}
+.gradewrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.disc{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:118px;line-height:1;flex:none}
+.addr{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:800;font-size:clamp(28px,4vw,40px);line-height:1.02;text-wrap:balance;min-width:0;direction:ltr;text-align:start}
+:root[lang="ar"] .addr{text-align:right}
+.addr small{display:block;font-family:var(--body);font-weight:400;font-size:15px;color:var(--muted);margin-top:6px;letter-spacing:0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.stat{border-top:4px solid var(--ink);padding-top:8px;min-width:0}
+.num{font-family:"Barlow Condensed","Cairo",Arial,sans-serif;font-weight:800;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.lab{font-size:14px;color:var(--muted);margin-top:4px}
+.why{font-size:15px;background:var(--chip);border-radius:6px;padding:10px 12px}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:20px;display:grid;gap:12px;min-width:0}
+h2{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.02em;margin:0;text-transform:uppercase}
+.sub{color:var(--muted);font-size:14px;margin:0}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr) 3.2em;gap:10px;align-items:center;font-size:15px}
+.track{height:14px;background:var(--chip);border-radius:3px;overflow:hidden}
+.fill{display:block;height:100%}
+.bar .n{font-family:var(--mono);text-align:end;font-variant-numeric:tabular-nums}
+.who{display:grid;gap:8px;border:1px dashed var(--rule);border-radius:8px;padding:10px 12px}
+.whoq{font-weight:700;font-size:15px}
+.whob{display:flex;gap:8px;flex-wrap:wrap}
+.whob button{all:unset;cursor:pointer;border:1px solid var(--rule);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--ink)}
+.whob button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.whob button:focus-visible{outline:2px solid var(--c)}
+.whosum{font-size:15px;margin:0}
+.bar.dim{opacity:.32}
+.near{display:grid;gap:8px}
+.nb{all:unset;cursor:pointer;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px;border:1px solid var(--rule);border-radius:6px}
+.nb:hover,.nb:focus-visible{border-color:var(--ink)}
+.nb .name{font-weight:700;direction:ltr;unicode-bidi:isolate}
+.chipg{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:26px;flex:none}
+.nb .meta{font-size:13px;color:var(--muted)}
+.nb .dist{font-family:var(--body);font-size:13px;color:var(--muted);white-space:nowrap}
+.mapbox{position:relative;width:100%;aspect-ratio:1/1.05;max-width:100%}
+canvas{width:100%;height:100%;display:block;border-radius:6px;background:var(--chip);cursor:crosshair}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.rules{font-size:14px;color:var(--muted);display:grid;gap:4px}
+.rules b{color:var(--ink)}
+.kpis{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--muted)}
+.kpis b{font-family:var(--mono);color:var(--ink)}
+footer{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.example{font-family:var(--display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.disc{transition:background .25s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="headrow">
+      <div class="brand" data-t="brand">Before You Sign</div>
+      <div class="langs" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="es" aria-pressed="false">ES</button>
+        <button type="button" data-lang="ar" aria-pressed="false">عربي</button>
+      </div>
+    </div>
+    <div class="tag" data-t="tag"></div>
+    <div class="search">
+      <label for="q" data-t="label"></label>
+      <input id="q" type="search" autocomplete="off" dir="auto">
+      <div class="sugg" id="sugg" hidden></div>
+    </div>
+  </header>
+
+  <div class="top">
+    <section class="card" aria-live="polite">
+      <div class="cardhead" data-t="cardhead"></div>
+      <div id="example" class="example" data-t="example" hidden></div>
+      <div class="gradewrap">
+        <div class="disc" id="disc">F</div>
+        <div class="addr" id="addr">—<small id="addrsub"></small></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num" id="sv">0</div><div class="lab" data-t="statv"></div></div>
+        <div class="stat"><div class="num" id="so">0</div><div class="lab" id="sol"></div></div>
+        <div class="stat"><div class="num" id="se">0</div><div class="lab" data-t="state"></div></div>
+      </div>
+      <div class="why" id="why"></div>
+    </section>
+
+    <section class="panel">
+      <h2 data-t="wrongh"></h2>
+      <p class="sub" data-t="wrongsub"></p>
+      <div class="who"><div class="whoq" data-t="whoq"></div><div class="whob" id="whob"></div><p class="whosum" id="whosum" hidden></p></div>
+      <div class="bars" id="bars"></div>
+    </section>
+  </div>
+
+  <div class="top">
+    <section class="panel">
+      <h2 data-t="nearh"></h2>
+      <p class="sub" id="nearsub"></p>
+      <div class="near" id="near"></div>
+    </section>
+
+    <section class="panel">
+      <h2 data-t="maph"></h2>
+      <div class="kpis" id="kpis"></div>
+      <div class="mapbox"><canvas id="map" role="img"></canvas></div>
+      <div class="legend" id="legend"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2 data-t="rulesh"></h2>
+    <p class="sub" data-t="rulessub"></p>
+    <div class="rules">
+      <div><b>A</b> <span data-t="ra"></span></div>
+      <div><b>B</b> <span data-t="rb"></span></div>
+      <div><b>C</b> <span data-t="rc"></span></div>
+      <div><b>D</b> <span data-t="rd"></span></div>
+      <div><b>F</b> <span data-t="rf"></span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div data-t="foot1"></div>
+    <div data-t="foot2"></div>
+  </footer>
+</div>
+
+<script>
+const B = __GRADES__;
+const CATS = __CATS__;
+const ORDER = {A:0,B:1,C:2,D:3,F:4,N:9};
+
+const T = {
+en:{ brand:"Before You Sign", tag:"NYC grades every restaurant. Nobody grades landlords. Look up any Bronx building before you hand over a deposit.",
+  label:"Bronx address", placeholder:"e.g. 1515 Selwyn Ave", cardhead:"Building grade", example:"Example building", city:"Bronx, NY",
+  statv:"open hazardous violations", oldest:"oldest problem open", since:y=>`oldest problem open (since ${y})`, state:"evictions since 2017",
+  yrs:n=>`${n} yrs`, mos:n=>`${n} mo`,
+  ri:n=>`${n} of the violations are rent-impairing: the city considers them serious enough to affect the rent owed.`,
+  laste:d=>`Most recent eviction: ${d}.`, none:"No rent-impairing violations or evictions on record.",
+  wrongh:"What's wrong here", wrongsub:"Open hazardous (Class C) violations by type.", noviol:"No open hazardous violations. This building is on the map because of evictions.",
+  nearh:"Better buildings nearby", nearsub:"Within about half a mile, best grade first. Buildings with a clean record (grade A) aren't listed, so these are the best with any record.",
+  nearbest:"This building already has one of the best grades on record nearby.", nearnone:"No better-graded buildings with records within half a mile.",
+  meta:(v,e)=>`${v} open hazardous violation${v===1?"":"s"} · ${e} eviction${e===1?"":"s"}`, blocks:n=>`~${n} blocks`,
+  maph:"The Bronx, graded", kb:n=>`<b>${n}</b> buildings with a record`, kf:n=>`<b>${n}</b> graded F`, kbb:n=>`<b>${n}</b> graded B`,
+  click:"Click a dot to open a building", maplabel:"Map of graded Bronx buildings. Click a dot to open that building.",
+  rulesh:"How the grade works",
+  ra:"no open hazardous violations and no evictions. These buildings don't appear on this map, which is the best case.",
+  rulessub:"Grades are per apartment, using each building's apartment count from the city's property records (PLUTO), so big complexes and small buildings are judged fairly. Evictions are counted per 100 apartments per year since 2017.",
+  rb:"a few records, with under 0.2 open hazardous violations per apartment and under 1 eviction per 100 apartments a year.",
+  rc:"0.2 or more open hazardous violations per apartment, 1 or more evictions per 100 apartments a year, or a violation open more than 2 years.",
+  rd:"0.5 or more open hazardous violations per apartment, or 2 or more evictions per 100 apartments a year.",
+  rf:"1 or more open hazardous violations per apartment, or 3 or more evictions per 100 apartments a year.",
+  apts:n=>`${n} apartments`, rates:(v,e)=>`${v} open hazardous violations per apartment · ${e} evictions per 100 apartments a year.`, notgraded:"Not graded: the city's property records don't list how many apartments this building has.",
+  foot1:"Data: NYC Open Data, HPD open Class C housing violations and residential marshal evictions (since 2017), as of October 7, 2026. Grades are computed by fixed rules in Elasticsearch ES|QL; the chat assistant explains them with Mistral.",
+  foot2:"Not legal advice. For free legal help as a tenant, call 311 and ask about Right to Counsel.",
+  nohits:"No Bronx building with open hazardous violations or evictions matches. That can be good news: no record means no open hazards on file.",
+  whoq:"Who's moving in? Tap to highlight what matters for your household.", who:{kids:"Young children",asthma:"Someone with asthma",older:"Older adult"}, whohead:"Matters most for your household", whonone:"No open violations of these types. A good sign for your household.",
+  locale:"en-US",
+  cats:{P:"Pests (mice, rats, roaches)",L:"Lead paint",M:"Mold",H:"Heat or hot water",F:"Fire safety",W:"Window guards (child safety)",K:"Leaks and water damage",O:"Other hazards"} },
+es:{ brand:"Antes de Firmar", tag:"Nueva York califica a cada restaurante. Nadie califica a los caseros. Busca cualquier edificio del Bronx antes de entregar un depósito.",
+  label:"Dirección en el Bronx", placeholder:"p. ej. 1515 Selwyn Ave", cardhead:"Calificación del edificio", example:"Edificio de ejemplo", city:"Bronx, NY",
+  statv:"violaciones peligrosas abiertas", oldest:"problema más antiguo abierto", since:y=>`problema más antiguo abierto (desde ${y})`, state:"desalojos desde 2017",
+  yrs:n=>`${n} ${n===1?"año":"años"}`, mos:n=>`${n} ${n===1?"mes":"meses"}`,
+  ri:n=>`${n} de las violaciones afectan la renta: la ciudad las considera tan graves que pueden afectar el alquiler que se debe.`,
+  laste:d=>`Último desalojo: ${d}.`, none:"No hay violaciones que afecten la renta ni desalojos registrados.",
+  wrongh:"Qué está mal aquí", wrongsub:"Violaciones peligrosas abiertas (Clase C) por tipo.", noviol:"No hay violaciones peligrosas abiertas. Este edificio aparece en el mapa por los desalojos.",
+  nearh:"Mejores edificios cerca", nearsub:"A menos de media milla, la mejor calificación primero. Los edificios sin ningún registro (calificación A) no aparecen, así que estos son los mejores con algún registro.",
+  nearbest:"Este edificio ya tiene una de las mejores calificaciones registradas en la zona.", nearnone:"No hay edificios con mejor calificación a menos de media milla.",
+  meta:(v,e)=>`${v} ${v===1?"violación peligrosa abierta":"violaciones peligrosas abiertas"} · ${e} ${e===1?"desalojo":"desalojos"}`, blocks:n=>`~${n} ${n===1?"cuadra":"cuadras"}`,
+  maph:"El Bronx, calificado", kb:n=>`<b>${n}</b> edificios con registro`, kf:n=>`<b>${n}</b> con F`, kbb:n=>`<b>${n}</b> con B`,
+  click:"Haz clic en un punto para abrir un edificio", maplabel:"Mapa de edificios del Bronx calificados. Haz clic en un punto para abrir ese edificio.",
+  rulesh:"Cómo funciona la calificación",
+  ra:"sin violaciones peligrosas abiertas ni desalojos. Estos edificios no aparecen en el mapa: es el mejor caso.",
+  rulessub:"Las calificaciones son por apartamento, usando el número de apartamentos de cada edificio según los registros de propiedad de la ciudad (PLUTO), así que los complejos grandes y los edificios pequeños se juzgan con justicia. Los desalojos se cuentan por cada 100 apartamentos al año desde 2017.",
+  rb:"pocos registros, con menos de 0.2 violaciones peligrosas abiertas por apartamento y menos de 1 desalojo por cada 100 apartamentos al año.",
+  rc:"0.2 o más violaciones peligrosas abiertas por apartamento, 1 o más desalojos por cada 100 apartamentos al año, o una violación abierta por más de 2 años.",
+  rd:"0.5 o más violaciones peligrosas abiertas por apartamento, o 2 o más desalojos por cada 100 apartamentos al año.",
+  rf:"1 o más violaciones peligrosas abiertas por apartamento, o 3 o más desalojos por cada 100 apartamentos al año.",
+  apts:n=>`${n} apartamentos`, rates:(v,e)=>`${v} violaciones peligrosas abiertas por apartamento · ${e} desalojos por cada 100 apartamentos al año.`, notgraded:"Sin calificar: los registros de propiedad de la ciudad no indican cuántos apartamentos tiene este edificio.",
+  foot1:"Datos: NYC Open Data, violaciones de vivienda peligrosas abiertas (Clase C) de HPD y desalojos residenciales (desde 2017), al 7 de octubre de 2026. Las calificaciones se calculan con reglas fijas en Elasticsearch ES|QL; el asistente las explica con Mistral.",
+  foot2:"No es asesoría legal. Para ayuda legal gratuita como inquilino, llama al 311 y pregunta por Right to Counsel.",
+  nohits:"Ningún edificio del Bronx con violaciones peligrosas abiertas o desalojos coincide. Puede ser una buena noticia: sin registro significa que no hay peligros abiertos archivados.",
+  whoq:"¿Quién se muda? Toque para resaltar lo que más importa para su hogar.", who:{kids:"Niños pequeños",asthma:"Alguien con asma",older:"Persona mayor"}, whohead:"Lo más importante para su hogar", whonone:"No hay violaciones abiertas de estos tipos. Buena señal para su hogar.",
+  locale:"es-US",
+  cats:{P:"Plagas (ratones, ratas, cucarachas)",L:"Pintura con plomo",M:"Moho",H:"Calefacción o agua caliente",F:"Seguridad contra incendios",W:"Protectores de ventanas (seguridad infantil)",K:"Filtraciones y daños por agua",O:"Otros peligros"} },
+ar:{ brand:"قبل أن توقّع", tag:"نيويورك تمنح كل مطعم درجة، لكن لا أحد يمنح الملّاك درجة. ابحث عن أي مبنى في البرونكس قبل أن تدفع مبلغ التأمين.",
+  label:"عنوان في البرونكس", placeholder:"مثال: 1515 Selwyn Ave", cardhead:"درجة المبنى", example:"مبنى كمثال", city:"البرونكس، نيويورك",
+  statv:"مخالفة خطيرة مفتوحة", oldest:"أقدم مشكلة مفتوحة", since:y=>`أقدم مشكلة مفتوحة (منذ ${y})`, state:"حالة إخلاء منذ 2017",
+  yrs:n=>`${n} ${n>=3&&n<=10?"سنوات":"سنة"}`, mos:n=>`${n} ${n>=3&&n<=10?"أشهر":"شهر"}`,
+  ri:n=>`${n} من المخالفات تؤثر على الإيجار: تعتبرها المدينة خطيرة بما يكفي لتؤثر على قيمة الإيجار المستحق.`,
+  laste:d=>`آخر حالة إخلاء: ${d}.`, none:"لا توجد مخالفات تؤثر على الإيجار ولا حالات إخلاء مسجلة.",
+  wrongh:"ما المشاكل هنا", wrongsub:"المخالفات الخطيرة المفتوحة (الفئة C) حسب النوع.", noviol:"لا توجد مخالفات خطيرة مفتوحة. يظهر هذا المبنى على الخريطة بسبب حالات الإخلاء.",
+  nearh:"مبانٍ أفضل قريبة", nearsub:"في حدود نصف ميل تقريبًا، الأفضل أولًا. المباني ذات السجل النظيف (الدرجة A) غير مدرجة، لذلك هذه أفضل المباني التي لها سجل.",
+  nearbest:"هذا المبنى لديه بالفعل من أفضل الدرجات المسجلة في المنطقة.", nearnone:"لا توجد مبانٍ ذات درجة أفضل في حدود نصف ميل.",
+  meta:(v,e)=>`${v} مخالفة خطيرة مفتوحة · ${e} حالة إخلاء`, blocks:n=>`حوالي ${n} بلوك`,
+  maph:"البرونكس بالدرجات", kb:n=>`<b>${n}</b> مبنى له سجل`, kf:n=>`<b>${n}</b> بدرجة F`, kbb:n=>`<b>${n}</b> بدرجة B`,
+  click:"اضغط على نقطة لفتح المبنى", maplabel:"خريطة مباني البرونكس بالدرجات. اضغط على نقطة لفتح المبنى.",
+  rulesh:"كيف تُحسب الدرجة",
+  ra:"لا مخالفات خطيرة مفتوحة ولا حالات إخلاء. هذه المباني لا تظهر على الخريطة، وهذا أفضل وضع.",
+  rulessub:"الدرجات محسوبة لكل شقة، باستخدام عدد شقق كل مبنى من سجلات العقارات في المدينة (PLUTO)، حتى تُقيَّم المجمعات الكبيرة والمباني الصغيرة بعدل. تُحسب حالات الإخلاء لكل 100 شقة سنويًا منذ 2017.",
+  rb:"سجلات قليلة، بأقل من 0.2 مخالفة خطيرة مفتوحة لكل شقة وأقل من حالة إخلاء واحدة لكل 100 شقة سنويًا.",
+  rc:"0.2 مخالفة خطيرة مفتوحة أو أكثر لكل شقة، أو حالة إخلاء واحدة أو أكثر لكل 100 شقة سنويًا، أو مخالفة مفتوحة منذ أكثر من سنتين.",
+  rd:"0.5 مخالفة خطيرة مفتوحة أو أكثر لكل شقة، أو حالتا إخلاء أو أكثر لكل 100 شقة سنويًا.",
+  rf:"مخالفة خطيرة مفتوحة واحدة أو أكثر لكل شقة، أو 3 حالات إخلاء أو أكثر لكل 100 شقة سنويًا.",
+  apts:n=>`${n} شقة`, rates:(v,e)=>`${v} مخالفة خطيرة مفتوحة لكل شقة · ${e} حالة إخلاء لكل 100 شقة سنويًا.`, notgraded:"غير مُقيَّم: سجلات العقارات في المدينة لا تذكر عدد الشقق في هذا المبنى.",
+  foot1:"البيانات: البيانات المفتوحة لمدينة نيويورك، مخالفات الإسكان الخطيرة المفتوحة (الفئة C) من HPD وحالات الإخلاء السكنية (منذ 2017)، حتى 7 أكتوبر 2026. تُحسب الدرجات بقواعد ثابتة في Elasticsearch ES|QL، ويشرحها المساعد باستخدام Mistral.",
+  foot2:"ليست استشارة قانونية. للمساعدة القانونية المجانية للمستأجرين، اتصل بـ 311 واسأل عن Right to Counsel.",
+  nohits:"لا يوجد مبنى في البرونكس بمخالفات خطيرة مفتوحة أو حالات إخلاء يطابق هذا العنوان. قد يكون هذا خبرًا جيدًا: عدم وجود سجل يعني عدم وجود مخاطر مفتوحة مسجلة.",
+  whoq:"من سيسكن معك؟ اضغط لإبراز ما يهم أسرتك أكثر.", who:{kids:"أطفال صغار",asthma:"شخص مصاب بالربو",older:"كبار السن"}, whohead:"الأهم لأسرتك", whonone:"لا توجد مخالفات مفتوحة من هذه الأنواع. علامة جيدة لأسرتك.",
+  locale:"ar-EG-u-nu-latn",
+  cats:{P:"آفات (فئران وجرذان وصراصير)",L:"دهان يحتوي على الرصاص",M:"عفن",H:"تدفئة أو مياه ساخنة",F:"السلامة من الحرائق",W:"حواجز النوافذ (سلامة الأطفال)",K:"تسربات وأضرار المياه",O:"مخاطر أخرى"} }
+};
+
+let lang = "en";
+const t = k => T[lang][k];
+const fmtN = n => n.toLocaleString(t("locale"));
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const gcol = g => g === "N" ? css("--muted") : css("--" + g.toLowerCase());
+
+const ABBR = {AVE:"AVENUE",AV:"AVENUE",ST:"STREET",E:"EAST",W:"WEST",N:"NORTH",S:"SOUTH",BLVD:"BOULEVARD",PKWY:"PARKWAY",PL:"PLACE",RD:"ROAD",DR:"DRIVE",CT:"COURT",TER:"TERRACE",PK:"PARK",SQ:"SQUARE",HWY:"HIGHWAY",EXPY:"EXPRESSWAY",CONC:"CONCOURSE"};
+function norm(s){
+  return (s||"").toUpperCase().replace(/[.,#]/g," ").replace(/\b(\d+)(ST|ND|RD|TH)\b/g,"$1")
+    .split(/\s+/).filter(Boolean).map(x=>ABBR[x]||x).join(" ");
+}
+const IDX = B.map(r => norm(r[0]));
+const BYBBL = new Map(B.map((r,i)=>[r[9],i]));
+
+function fmtAge(d){ if(!d) return "—"; const y=(Date.now()-Date.parse(d))/(365.25*864e5); if(y>=1) return t("yrs")(Math.floor(y)); return t("mos")(Math.max(1,Math.round(y*12))); }
+function dist(a,b){ const R=6371000, toR=Math.PI/180; const dLat=(b[7]-a[7])*toR, dLon=(b[8]-a[8])*toR; const s=Math.sin(dLat/2)**2+Math.cos(a[7]*toR)*Math.cos(b[7]*toR)*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(s)); }
+
+let cur = null, curExample = false, nearList = [];
+const WHO = {kids:["L","W"], asthma:["M","P","K"], older:["H","F"]};
+const who = new Set();
+function renderWho(){
+  const box = document.getElementById("whob"); box.innerHTML = "";
+  for (const k of Object.keys(WHO)){
+    const b = document.createElement("button"); b.type = "button"; b.textContent = t("who")[k];
+    b.setAttribute("aria-pressed", String(who.has(k)));
+    b.addEventListener("click", ()=>{ who.has(k) ? who.delete(k) : who.add(k); renderWho(); if (cur!==null) show(cur); });
+    box.appendChild(b);
+  }
+}
+
+function applyLang(){
+  const root = document.documentElement;
+  root.lang = lang; root.dir = lang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(el => { el.textContent = t(el.dataset.t); });
+  document.getElementById("q").placeholder = t("placeholder");
+  renderWho();
+  document.getElementById("map").setAttribute("aria-label", t("maplabel"));
+  document.querySelectorAll(".langs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  const counts = {B:0,C:0,D:0,F:0,N:0}; for (const r of B) counts[r[1]]++;
+  document.getElementById("legend").innerHTML = ["B","C","D","F"].map(g=>`<span><i class="dot" style="background:${gcol(g)}"></i>${g}</span>`).join("") + `<span>${t("click")}</span>`;
+  document.getElementById("kpis").innerHTML = `<span>${t("kb")(fmtN(B.length))}</span><span>${t("kf")(fmtN(counts.F))}</span><span>${t("kbb")(fmtN(counts.B))}</span>`;
+}
+
+function show(i){
+  const r = B[i]; cur = i;
+  const [addr,g,v,e,ri,oldest,laste] = r;
+  document.getElementById("example").hidden = !curExample;
+  const disc = document.getElementById("disc"); disc.textContent = g === "N" ? "?" : g; disc.style.background = gcol(g);
+  document.getElementById("addr").firstChild.nodeValue = addr;
+  document.getElementById("addrsub").textContent = t("city") + " · " + (r[10] ? t("apts")(fmtN(r[10])) + " · " : "") + "BBL " + r[9];
+  document.getElementById("sv").textContent = fmtN(v);
+  document.getElementById("se").textContent = fmtN(e);
+  document.getElementById("so").textContent = fmtAge(oldest);
+  document.getElementById("sol").textContent = oldest ? t("since")(oldest.slice(0,4)) : t("oldest");
+  const bits = [];
+  if (g === "N") bits.push(t("notgraded")); else if (r[10]) bits.push(t("rates")(r[11], r[12]));
+  if (ri) bits.push(t("ri")(ri));
+  if (laste) bits.push(t("laste")(new Date(laste+"T12:00:00").toLocaleDateString(t("locale"),{month:"long",day:"numeric",year:"numeric"})));
+  if (!bits.length) bits.push(t("none"));
+  document.getElementById("why").textContent = bits.join(" ");
+
+  const c = CATS[r[9]] || {};
+  const focus = new Set([...who].flatMap(k=>WHO[k]));
+  const rows = Object.entries(c).sort((a,b)=> (focus.has(b[0])-focus.has(a[0])) || b[1]-a[1]);
+  const ws = document.getElementById("whosum");
+  if (focus.size){
+    const items = [...focus].map(k=>`${t("cats")[k]}: ${c[k]||0}`);
+    const any = [...focus].some(k=>(c[k]||0)>0);
+    ws.textContent = any ? `${t("whohead")}: ${items.join(" · ")}` : t("whonone");
+    ws.hidden = false;
+  } else ws.hidden = true;
+  const max = rows.length ? Math.max(...rows.map(x=>x[1])) : 1;
+  const bars = document.getElementById("bars"); bars.innerHTML = "";
+  if (!rows.length) bars.innerHTML = `<p class="sub">${t("noviol")}</p>`;
+  for (const [k,n] of rows){
+    const el = document.createElement("div"); el.className = "bar" + (focus.size && !focus.has(k) ? " dim" : "");
+    el.innerHTML = `<span>${t("cats")[k]}</span><span class="track"><span class="fill" style="width:${(n/max*100).toFixed(1)}%;background:${gcol(g)}"></span></span><span class="n">${n}</span>`;
+    bars.appendChild(el);
+  }
+
+  nearList = [];
+  for (let j=0;j<B.length;j++){
+    if (j===i || B[j][1]==="N" || ORDER[B[j][1]] >= ORDER[g]) continue;
+    const d = dist(r,B[j]); if (d>800) continue;
+    nearList.push([j,d]);
+  }
+  nearList.sort((a,b)=> ORDER[B[a[0]][1]]-ORDER[B[b[0]][1]] || a[1]-b[1]);
+  nearList = nearList.slice(0,6);
+  const near = document.getElementById("near"); near.innerHTML = "";
+  document.getElementById("nearsub").textContent = nearList.length ? t("nearsub") : (g==="B" ? t("nearbest") : t("nearnone"));
+  for (const [j,d] of nearList){
+    const n = B[j];
+    const b = document.createElement("button"); b.className = "nb"; b.type = "button";
+    b.innerHTML = `<span class="chipg" style="background:${gcol(n[1])}">${n[1]}</span><span><span class="name">${n[0]}</span><br><span class="meta">${t("meta")(n[2],n[3])}</span></span><span class="dist">${t("blocks")(Math.max(1,Math.round(d/80)))}</span>`;
+    b.addEventListener("click", ()=>{ go(n[9]); });
+    near.appendChild(b);
+  }
+  draw();
+}
+
+/* Map */
+const cv = document.getElementById("map"); const ctx = cv.getContext("2d");
+let minLon=Infinity, maxLon=-Infinity, minLat=Infinity, maxLat=-Infinity;
+for (const r of B){ minLat=Math.min(minLat,r[7]); maxLat=Math.max(maxLat,r[7]); minLon=Math.min(minLon,r[8]); maxLon=Math.max(maxLon,r[8]); }
+const kx = Math.cos((minLat+maxLat)/2*Math.PI/180);
+let proj = null;
+function setup(){
+  const rect = cv.getBoundingClientRect(); const dpr = window.devicePixelRatio||1;
+  cv.width = Math.round(rect.width*dpr); cv.height = Math.round(rect.height*dpr);
+  const pad = 14*dpr, w = cv.width-2*pad, h = cv.height-2*pad;
+  const spanX = (maxLon-minLon)*kx, spanY = (maxLat-minLat);
+  const s = Math.min(w/spanX, h/spanY);
+  const ox = pad + (w - spanX*s)/2, oy = pad + (h - spanY*s)/2;
+  proj = { dpr, x: lon => ox + (lon-minLon)*kx*s, y: lat => oy + (maxLat-lat)*s };
+}
+function draw(){
+  if (!proj) setup();
+  const {dpr} = proj; ctx.clearRect(0,0,cv.width,cv.height);
+  for (const g of ["N","F","D","C","B"]){
+    ctx.fillStyle = gcol(g); ctx.globalAlpha = g==="F" ? .45 : g==="N" ? .5 : .9;
+    const sz = (g==="F"?1.6:2.2)*dpr;
+    for (const r of B){ if (r[1]!==g) continue; ctx.fillRect(proj.x(r[8])-sz/2, proj.y(r[7])-sz/2, sz, sz); }
+  }
+  ctx.globalAlpha = 1;
+  if (cur!==null){
+    for (const [j] of nearList){ const n=B[j]; ctx.beginPath(); ctx.arc(proj.x(n[8]),proj.y(n[7]),5*dpr,0,7); ctx.fillStyle=gcol(n[1]); ctx.fill(); ctx.lineWidth=1.5*dpr; ctx.strokeStyle=css("--sheet"); ctx.stroke(); }
+    const r = B[cur]; const x=proj.x(r[8]), y=proj.y(r[7]);
+    ctx.beginPath(); ctx.arc(x,y,9*dpr,0,7); ctx.lineWidth=3*dpr; ctx.strokeStyle=css("--ring"); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x,y,4*dpr,0,7); ctx.fillStyle=gcol(r[1]); ctx.fill();
+  }
+}
+cv.addEventListener("click", ev=>{
+  const rect = cv.getBoundingClientRect(); const dpr = proj.dpr;
+  const mx=(ev.clientX-rect.left)*dpr, my=(ev.clientY-rect.top)*dpr;
+  let best=-1, bd=1e9;
+  for (let j=0;j<B.length;j++){ const dx=proj.x(B[j][8])-mx, dy=proj.y(B[j][7])-my; const d=dx*dx+dy*dy; if(d<bd){bd=d;best=j;} }
+  if (best>=0 && bd < (12*dpr)**2) go(B[best][9]);
+});
+window.addEventListener("resize", ()=>{ proj=null; draw(); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ()=>{ applyLang(); if(cur!==null) show(cur); });
+
+/* Search */
+const q = document.getElementById("q"), sugg = document.getElementById("sugg");
+q.addEventListener("input", ()=>{
+  const s = norm(q.value); sugg.innerHTML = "";
+  if (s.length < 3){ sugg.hidden = true; return; }
+  const toks = s.split(" ");
+  const hits = [];
+  for (let i=0;i<IDX.length && hits.length<200;i++){
+    const a = IDX[i];
+    if (a.startsWith(s) || toks.every(k=>a.includes(k))) hits.push(i);
+  }
+  hits.sort((x,y)=> (IDX[y].startsWith(s)-IDX[x].startsWith(s)) || B[y][2]-B[x][2]);
+  for (const i of hits.slice(0,8)){
+    const b = document.createElement("button"); b.type="button";
+    b.innerHTML = `<span class="chipg" style="width:28px;height:28px;font-size:18px;background:${gcol(B[i][1])}">${B[i][1]==="N"?"?":B[i][1]}</span><span dir="ltr">${B[i][0]}</span>`;
+    b.addEventListener("click", ()=>{ sugg.hidden=true; q.value=B[i][0]; go(B[i][9]); });
+    sugg.appendChild(b);
+  }
+  if (!hits.length){ sugg.innerHTML = `<div style="padding:10px 12px;color:var(--muted)">${t("nohits")}</div>`; }
+  sugg.hidden = false;
+});
+q.addEventListener("keydown", e=>{ if(e.key==="Enter"){ const f=sugg.querySelector("button"); if(f) f.click(); } if(e.key==="Escape") sugg.hidden=true; });
+document.addEventListener("click", e=>{ if(!e.target.closest(".search")) sugg.hidden=true; });
+
+/* Language switch and deep links: #<BBL>-<lang>, e.g. #2028190051-es */
+document.querySelectorAll(".langs button").forEach(b => b.addEventListener("click", ()=>{
+  lang = b.dataset.lang;
+  location.hash = (cur!==null && !curExample ? B[cur][9] + "-" : "") + lang;
+}));
+function go(bbl){ location.hash = bbl + "-" + lang; }
+function fromHash(){
+  const h = (location.hash||"").replace("#","");
+  const m = h.match(/^(\d{10})?-?(en|es|ar)?$/);
+  let bbl = null;
+  if (m){ bbl = m[1] || null; if (m[2]) lang = m[2]; }
+  applyLang();
+  curExample = !(bbl && BYBBL.has(bbl));
+  show(curExample ? BYBBL.get("2028190051") : BYBBL.get(bbl));
+  if (!curExample) { try { q.value = B[BYBBL.get(bbl)][0]; } catch(e){} }
+  lastHash = location.hash;
+}
+let lastHash = null;
+/* the viewer can hand over the #anchor after load; watch briefly for it */
+let polls = 0;
+const hp = setInterval(()=>{ polls++; if (location.hash !== lastHash) fromHash(); if (polls > 40) clearInterval(hp); }, 250);
+window.addEventListener("hashchange", ()=>{ fromHash(); window.scrollTo({top:0,behavior:"smooth"}); });
+fromHash();
+</script>

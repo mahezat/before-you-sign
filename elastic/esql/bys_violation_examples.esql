@@ -1,0 +1,5 @@
+FROM hpd_violations
+| WHERE bbl == ?bbl
+| SORT inspectiondate ASC
+| KEEP inspectiondate, apartment, rentimpairing, novdescription
+| LIMIT 12

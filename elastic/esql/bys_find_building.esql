@@ -1,0 +1,5 @@
+FROM hpd_violations, evictions METADATA _score
+| WHERE MATCH(address, ?address)
+| STATS records = COUNT(*), best_score = MAX(_score) BY bbl, address.keyword
+| SORT best_score DESC, records DESC
+| LIMIT 5

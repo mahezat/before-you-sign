@@ -1,0 +1,6 @@
+FROM hpd_violations
+| WHERE bbl == ?bbl
+| EVAL d = TO_UPPER(novdescription)
+| EVAL category = CASE(d LIKE "*LEAD*", "Lead paint", d LIKE "*MOLD*", "Mold", d LIKE "*MICE*" OR d LIKE "*RODENT*" OR d LIKE "*RATS*" OR d LIKE "*ROACH*" OR d LIKE "*VERMIN*" OR d LIKE "*BEDBUG*" OR d LIKE "*PEST*", "Pests (mice, rats, roaches)", d LIKE "*HEAT*" OR d LIKE "*HOT WATER*", "Heat or hot water", d LIKE "*SMOKE DETECT*" OR d LIKE "*CARBON MONOXIDE*" OR d LIKE "*FIRE*", "Fire safety", d LIKE "*WINDOW GUARD*", "Window guards (child safety)", d LIKE "*LEAK*" OR d LIKE "*WATER*", "Leaks and water damage", "Other hazards")
+| STATS violations = COUNT(*), oldest_open = MIN(inspectiondate) BY category
+| SORT violations DESC

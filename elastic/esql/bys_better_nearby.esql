@@ -1,0 +1,19 @@
+FROM hpd_violations, evictions METADATA _index
+| EVAL is_v = CASE(_index == "hpd_violations", 1, 0), is_e = CASE(_index == "evictions", 1, 0), t = bbl == ?bbl
+| EVAL tx = CASE(t, ST_X(location), null), ty = CASE(t, ST_Y(location), null), tv = CASE(t, is_v, 0), te = CASE(t, is_e, 0), tu = CASE(t, units, null), td = CASE(t, inspectiondate, null)
+| INLINE STATS cx = MAX(tx), cy = MAX(ty), t_v = SUM(tv), t_e = SUM(te), t_u = MAX(tu), t_old = MIN(td)
+| EVAL meters = ST_DISTANCE(location, TO_GEOPOINT(CONCAT("POINT(", TO_STRING(cx), " ", TO_STRING(cy), ")")))
+| WHERE meters < 800 AND bbl != ?bbl
+| EVAL addr_h = CASE(_index == "hpd_violations", address.keyword, null)
+| STATS open_hazardous_violations = SUM(is_v), evictions = SUM(is_e), oldest = MIN(inspectiondate), apartments = MAX(units), meters = MIN(meters), building = MAX(addr_h), any_addr = MAX(address.keyword), t_v = MAX(t_v), t_e = MAX(t_e), t_u = MAX(t_u), t_old = MIN(t_old) BY bbl
+| WHERE apartments IS NOT NULL
+| EVAL yrs = DATE_DIFF("day", TO_DATETIME("2017-01-01T00:00:00.000Z"), NOW()) / 365.25
+| EVAL vpa = TO_DOUBLE(open_hazardous_violations) / apartments, epy = TO_DOUBLE(evictions) * 100.0 / apartments / yrs, days = DATE_DIFF("day", oldest, NOW())
+| EVAL t_vpa = TO_DOUBLE(t_v) / t_u, t_epy = TO_DOUBLE(t_e) * 100.0 / t_u / yrs, t_days = DATE_DIFF("day", t_old, NOW())
+| EVAL grade = CASE(vpa >= 1.0 OR epy >= 3.0, "F", vpa >= 0.5 OR epy >= 2.0, "D", vpa >= 0.2 OR epy >= 1.0 OR days > 730, "C", "B"), rank = CASE(grade == "B", 1, grade == "C", 2, grade == "D", 3, 4)
+| EVAL target_rank = CASE(t_vpa >= 1.0 OR t_epy >= 3.0, 4, t_vpa >= 0.5 OR t_epy >= 2.0, 3, t_vpa >= 0.2 OR t_epy >= 1.0 OR t_days > 730, 2, 1)
+| WHERE rank < target_rank
+| EVAL building = COALESCE(building, any_addr), blocks_away = ROUND(meters / 80.0)
+| SORT rank ASC, meters ASC
+| KEEP grade, building, apartments, open_hazardous_violations, evictions, blocks_away, bbl
+| LIMIT 5
